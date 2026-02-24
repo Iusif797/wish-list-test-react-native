@@ -4,6 +4,7 @@ import { GlassCard } from './GlassCard';
 import { PremiumButton } from './PremiumButton';
 import { ProgressBar } from './ProgressBar';
 import { useTheme } from '../lib/theme';
+import { FontSize } from '../lib/typography';
 import { ExternalLink, Edit2, Trash2, CheckCircle2 } from 'lucide-react-native';
 
 export interface ItemType {
@@ -193,17 +194,17 @@ const styles = StyleSheet.create({
     paddingTop: 4,
   },
   name: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '700',
     marginBottom: 4,
   },
   url: {
-    fontSize: 13,
+    fontSize: FontSize.caption,
     color: '#8b5cf6',
     marginBottom: 8,
   },
   price: {
-    fontSize: 15,
+    fontSize: FontSize.secondary,
     fontWeight: '600',
   },
   targetText: {
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   badgeReservedText: {
-    fontSize: 12,
+    fontSize: FontSize.caption,
     fontWeight: '700',
     color: '#06b6d4',
   },
@@ -250,7 +251,7 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   badgeMyReserveText: {
-    fontSize: 12,
+    fontSize: FontSize.caption,
     fontWeight: '700',
     color: '#a855f7',
   },
@@ -258,7 +259,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   progressText: {
-    fontSize: 12,
+    fontSize: FontSize.caption,
     marginTop: 6,
     fontWeight: '500',
   },

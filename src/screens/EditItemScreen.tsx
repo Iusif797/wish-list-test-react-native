@@ -76,10 +76,24 @@ export default function EditItemScreen({ route, navigation }: Props) {
   };
 
   const handleSave = async () => {
-    if (!name || !url || !price) {
+    const trimmedName = name.trim();
+    const trimmedUrl = url.trim();
+
+    if (!trimmedName || !trimmedUrl || !price) {
       setError('Название, ссылка и цена обязательны');
       return;
     }
+
+    if (trimmedName.length > 100) {
+      setError('Название не должно превышать 100 символов');
+      return;
+    }
+
+    if (wishlist?.items?.some((i: any) => i.id !== itemId && i.name.toLowerCase() === trimmedName.toLowerCase())) {
+      setError('Подарок с таким названием уже существует в этом списке');
+      return;
+    }
+
     setLoadingSave(true);
     setError('');
     try {

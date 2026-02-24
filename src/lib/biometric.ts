@@ -72,7 +72,7 @@ export async function saveBiometricCredentials(token: string): Promise<void> {
   try {
     await SecureStore.setItemAsync(BIOMETRIC_TOKEN_KEY, token);
     await SecureStore.setItemAsync(BIOMETRIC_FLAG_KEY, '1');
-  } catch (e) {
+  } catch {
     // Fail silently but acknowledge
   }
 }
@@ -95,7 +95,7 @@ export async function clearBiometricCredentials(): Promise<void> {
   try {
     await SecureStore.deleteItemAsync(BIOMETRIC_TOKEN_KEY);
     await SecureStore.deleteItemAsync(BIOMETRIC_FLAG_KEY);
-  } catch (e) {
+  } catch {
     // Fail silently but acknowledge
   }
 }

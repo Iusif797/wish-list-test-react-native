@@ -1,21 +1,22 @@
-import { useEffect } from 'react';
-import { View, StyleSheet, Platform } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { AuthProvider } from '@/lib/auth';
 import { ThemeProvider } from '@/lib/theme';
 import { AppNavigator } from '@/navigation/AppNavigator';
-import * as Linking from 'expo-linking';
 import 'react-native-reanimated';
 
 export default function App() {
   return (
-    <SafeAreaProvider style={styles.container}>
-      <ThemeProvider>
-        <AuthProvider>
-          <AppNavigator />
-        </AuthProvider>
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaProvider style={styles.container}>
+        <ThemeProvider>
+          <AuthProvider>
+            <AppNavigator />
+          </AuthProvider>
+        </ThemeProvider>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
 

@@ -31,16 +31,36 @@ export default function NewWishlistScreen({ navigation }: Props) {
   const isDark = theme === 'dark';
 
   async function handleCreate() {
-    if (!name || !occasion) {
+    const trimmedName = name.trim();
+    const trimmedOccasion = occasion.trim();
+
+    if (!trimmedName || !trimmedOccasion) {
       setError('Пожалуйста, заполните все поля');
       return;
     }
+
+    if (trimmedName.length > 50) {
+      setError('Название не должно превышать 50 символов');
+      return;
+    }
+    
+    // Check for duplicates in current wishlists
+    try {
+      const { data: currentWishlists } = await api<any>('/wishlists/my');
+      if (currentWishlists?.some((w: any) => w.name.toLowerCase() === trimmedName.toLowerCase())) {
+        setError('Список с таким названием уже существует');
+        return;
+      }
+    } catch {
+      // Ignore network errors on duplicate check
+    }
+
     setError('');
     setLoading(true);
     try {
       const wishlist = await api<{ id: string }>('/wishlists', {
         method: 'POST',
-        body: JSON.stringify({ name, occasion }),
+        body: JSON.stringify({ name: trimmedName, occasion: trimmedOccasion }),
       });
       navigation.replace('WishlistDetail', { id: wishlist.id });
     } catch (err: any) {

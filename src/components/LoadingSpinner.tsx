@@ -6,8 +6,6 @@ import Animated, {
   withRepeat,
   withTiming,
   Easing,
-  interpolate,
-  Extrapolation,
 } from 'react-native-reanimated';
 
 export function LoadingSpinner() {
@@ -19,7 +17,7 @@ export function LoadingSpinner() {
       -1,
       false,
     );
-  }, []);
+  }, [rotation]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {

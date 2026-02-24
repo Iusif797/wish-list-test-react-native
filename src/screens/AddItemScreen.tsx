@@ -58,10 +58,30 @@ export default function AddItemScreen({ route, navigation }: Props) {
   };
 
   const handleSave = async () => {
-    if (!name || !url || !price) {
+    const trimmedName = name.trim();
+    const trimmedUrl = url.trim();
+
+    if (!trimmedName || !trimmedUrl || !price) {
       setError('Название, ссылка и цена обязательны');
       return;
     }
+
+    if (trimmedName.length > 100) {
+      setError('Название не должно превышать 100 символов');
+      return;
+    }
+
+    // Check for duplicates in current wishlist if data is available locally
+    try {
+      const { data: currentWishlist } = await api<any>(`/wishlists/${id}`);
+      if (currentWishlist?.items?.some((i: any) => i.name.toLowerCase() === trimmedName.toLowerCase())) {
+        setError('Подарок с таким названием уже существует в этом списке');
+        return;
+      }
+    } catch {
+      // Ignore network errors on duplicate check to not block creation completely
+    }
+
     setLoadingSave(true);
     setError('');
     try {

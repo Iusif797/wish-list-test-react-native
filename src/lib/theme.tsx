@@ -34,7 +34,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   async function toggle() {
     const next = theme === 'dark' ? 'light' : 'dark';
     setTheme(next);
-    await AsyncStorage.setItem('theme', next);
+    try {
+      await AsyncStorage.setItem('theme', next);
+    } catch {
+      // Ignore storage error
+    }
   }
 
   if (!mounted) return null;
