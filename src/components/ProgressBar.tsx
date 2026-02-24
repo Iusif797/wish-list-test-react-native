@@ -4,33 +4,60 @@ import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
+  withSpring,
+  withRepeat,
+  withSequence,
+  interpolateColor,
   Easing,
 } from 'react-native-reanimated';
 
 interface ProgressBarProps {
-  progress: number; // 0 to 1
+  progress: number;
   height?: number;
 }
 
 export function ProgressBar({ progress, height = 8 }: ProgressBarProps) {
   const widthAnim = useSharedValue(0);
+  const pulseAnim = useSharedValue(1);
 
   useEffect(() => {
-    widthAnim.value = withTiming(Math.min(Math.max(progress, 0), 1), {
-      duration: 1000,
-      easing: Easing.out(Easing.exp),
+    const clamped = Math.min(Math.max(progress, 0), 1);
+    widthAnim.value = withSpring(clamped, {
+      damping: 20,
+      stiffness: 90,
+      mass: 1,
     });
+
+    if (clamped >= 1) {
+      pulseAnim.value = withRepeat(
+        withSequence(
+          withTiming(1.03, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+          withTiming(1, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        ),
+        -1,
+        true,
+      );
+    } else {
+      pulseAnim.value = withTiming(1, { duration: 300 });
+    }
   }, [progress]);
 
-  const animatedStyle = useAnimatedStyle(() => {
+  const barStyle = useAnimatedStyle(() => {
+    const bg = interpolateColor(
+      widthAnim.value,
+      [0, 0.5, 1],
+      ['#8b5cf6', '#6366f1', '#10b981'],
+    );
     return {
       width: `${widthAnim.value * 100}%`,
+      backgroundColor: bg,
+      transform: [{ scaleY: pulseAnim.value }],
     };
   });
 
   return (
     <View style={[styles.container, { height }]}>
-      <Animated.View style={[styles.bar, animatedStyle, { height }]} />
+      <Animated.View style={[styles.bar, barStyle, { height }]} />
     </View>
   );
 }
@@ -38,12 +65,11 @@ export function ProgressBar({ progress, height = 8 }: ProgressBarProps) {
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    backgroundColor: 'rgba(148, 163, 184, 0.2)', // slate-400/20
+    backgroundColor: 'rgba(148, 163, 184, 0.2)',
     borderRadius: 9999,
     overflow: 'hidden',
   },
   bar: {
-    backgroundColor: '#8b5cf6', // primary-500
     borderRadius: 9999,
   },
 });

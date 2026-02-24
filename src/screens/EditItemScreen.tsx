@@ -176,7 +176,7 @@ export default function EditItemScreen({ route, navigation }: Props) {
 
             <PremiumButton
               title="Найти информацию по ссылке"
-              icon={<Search size={18} color={isDark ? '#cbd5e1' : '#475569'} />}
+              icon={<Search size={18} color={isDark ? '#e2d6ff' : '#6d28d9'} />}
               onPress={fetchMeta}
               loading={loadingMeta}
               variant="secondary"

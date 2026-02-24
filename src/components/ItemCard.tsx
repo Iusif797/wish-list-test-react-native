@@ -126,7 +126,7 @@ export const ItemCard = React.memo(function ItemCard({
             variant="secondary"
             onPress={onEdit}
             style={styles.actionButton}
-            icon={<Edit2 size={16} color={isDark ? '#cbd5e1' : '#475569'} />}
+            icon={<Edit2 size={16} color={isDark ? '#e2d6ff' : '#6d28d9'} />}
           />
           <PremiumButton
             title="Удалить"

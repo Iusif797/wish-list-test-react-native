@@ -16,6 +16,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { FontSize } from '../lib/typography';
+import { useTheme } from '../lib/theme';
 
 interface PremiumButtonProps extends TouchableOpacityProps {
   title: string;
@@ -33,6 +34,8 @@ export function PremiumButton({
   disabled,
   ...props
 }: PremiumButtonProps) {
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
   const scale = useSharedValue(1);
   const glowOpacity = useSharedValue(0.5);
 
@@ -89,14 +92,14 @@ export function PremiumButton({
         )}
         <View style={styles.content}>
           {loading ? (
-            <Text style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}>
+            <Text style={[styles.text, isPrimary || isDanger ? styles.textWhite : isDark ? styles.textSecondaryDark : styles.textSecondaryLight]}>
               Загрузка...
             </Text>
           ) : (
             <>
               {icon && <View style={styles.iconContainer}>{icon}</View>}
               <Text
-                style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}
+                style={[styles.text, isPrimary || isDanger ? styles.textWhite : isDark ? styles.textSecondaryDark : styles.textSecondaryLight]}
               >
                 {title}
               </Text>
@@ -157,11 +160,14 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     letterSpacing: 0.2,
   },
-  textLight: {
+  textWhite: {
     color: '#ffffff',
   },
-  textDark: {
-    color: '#f8fafc',
+  textSecondaryLight: {
+    color: '#6d28d9',
+  },
+  textSecondaryDark: {
+    color: '#e2d6ff',
   },
   glowContainer: {
     zIndex: 1,

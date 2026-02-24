@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -21,6 +21,7 @@ import { ProgressBar } from '@/components/ProgressBar';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ItemCard, ItemType } from '@/components/ItemCard';
 import { SwipeableItemCard } from '@/components/SwipeableItemCard';
+import { AnimatedItemWrapper } from '@/components/AnimatedItemWrapper';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useTheme } from '@/lib/theme';
 import { FontSize } from '@/lib/typography';
@@ -52,7 +53,9 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
   });
 
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [animatingDeleteId, setAnimatingDeleteId] = useState<string | null>(null);
   const [localItems, setLocalItems] = useState<ItemType[] | null>(null);
+  const itemIndexMap = useRef<Map<string, number>>(new Map());
 
   const items: ItemType[] = useMemo(() => localItems ?? wishlist?.items ?? [], [localItems, wishlist?.items]);
 
@@ -63,20 +66,27 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
     return { total, reserved, progress };
   }, [items]);
 
-  const handleDeleteItem = async () => {
+  const handleDeleteConfirm = useCallback(() => {
     if (!deletingItemId) return;
+    setAnimatingDeleteId(deletingItemId);
+    setDeletingItemId(null);
+  }, [deletingItemId]);
+
+  const handleDeleteAnimationEnd = useCallback(async () => {
+    const itemId = animatingDeleteId;
+    setAnimatingDeleteId(null);
+    if (!itemId) return;
     try {
-      await api(`/wishlists/${id}/items/${deletingItemId}`, { method: 'DELETE' });
+      await api(`/wishlists/${id}/items/${itemId}`, { method: 'DELETE' });
       hapticSuccess();
       mutate();
       setLocalItems(null);
     } catch (err: any) {
       hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось удалить предмет');
-    } finally {
-      setDeletingItemId(null);
+      mutate();
     }
-  };
+  }, [animatingDeleteId, id, mutate]);
 
   const handleToggleReserved = useCallback(
     async (item: ItemType) => {
@@ -126,39 +136,53 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
   );
 
   const renderItem = useCallback(
-    ({ item, drag, isActive }: RenderItemParams<ItemType>) => (
-      <ScaleDecorator>
-        <TouchableOpacity
-          activeOpacity={1}
-          onLongPress={() => {
-            hapticMedium();
-            drag();
-          }}
-          disabled={isActive}
-          style={isActive ? styles.draggingItem : undefined}
-        >
-          <SwipeableItemCard
-            onSwipeLeft={() => {
-              hapticWarning();
-              setDeletingItemId(item.id);
-            }}
-            onSwipeRight={() => handleToggleReserved(item)}
-            isReserved={item.reserved}
+    ({ item, drag, isActive, getIndex }: RenderItemParams<ItemType>) => {
+      const idx = getIndex() ?? 0;
+      if (!itemIndexMap.current.has(item.id)) {
+        itemIndexMap.current.set(item.id, itemIndexMap.current.size);
+      }
+      const entryIndex = itemIndexMap.current.get(item.id) ?? idx;
+
+      return (
+        <ScaleDecorator>
+          <AnimatedItemWrapper
+            index={entryIndex}
+            isDeleting={animatingDeleteId === item.id}
+            onDeleteAnimationEnd={handleDeleteAnimationEnd}
           >
-            <ItemCard
-              item={item}
-              isOwner={true}
-              onEdit={() => navigation.navigate('EditItem', { id, itemId: item.id })}
-              onDelete={() => {
-                hapticWarning();
-                setDeletingItemId(item.id);
+            <TouchableOpacity
+              activeOpacity={1}
+              onLongPress={() => {
+                hapticMedium();
+                drag();
               }}
-            />
-          </SwipeableItemCard>
-        </TouchableOpacity>
-      </ScaleDecorator>
-    ),
-    [id, navigation, handleToggleReserved],
+              disabled={isActive}
+              style={isActive ? styles.draggingItem : undefined}
+            >
+              <SwipeableItemCard
+                onSwipeLeft={() => {
+                  hapticWarning();
+                  setDeletingItemId(item.id);
+                }}
+                onSwipeRight={() => handleToggleReserved(item)}
+                isReserved={item.reserved}
+              >
+                <ItemCard
+                  item={item}
+                  isOwner={true}
+                  onEdit={() => navigation.navigate('EditItem', { id, itemId: item.id })}
+                  onDelete={() => {
+                    hapticWarning();
+                    setDeletingItemId(item.id);
+                  }}
+                />
+              </SwipeableItemCard>
+            </TouchableOpacity>
+          </AnimatedItemWrapper>
+        </ScaleDecorator>
+      );
+    },
+    [id, navigation, handleToggleReserved, animatingDeleteId, handleDeleteAnimationEnd],
   );
 
   const renderEmptyState = useCallback(() => {
@@ -269,7 +293,7 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
         message="Вы уверены, что хотите удалить этот предмет из списка? Все бронирования и скидывания будут отменены."
         confirmLabel="Удалить"
         variant="danger"
-        onConfirm={handleDeleteItem}
+        onConfirm={handleDeleteConfirm}
         onCancel={() => setDeletingItemId(null)}
       />
     </SafeAreaView>
