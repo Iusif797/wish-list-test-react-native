@@ -1,6 +1,11 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, Easing } from "react-native-reanimated";
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 
 interface ProgressBarProps {
   progress: number; // 0 to 1
@@ -32,13 +37,13 @@ export function ProgressBar({ progress, height = 8 }: ProgressBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    width: "100%",
-    backgroundColor: "rgba(148, 163, 184, 0.2)", // slate-400/20
+    width: '100%',
+    backgroundColor: 'rgba(148, 163, 184, 0.2)', // slate-400/20
     borderRadius: 9999,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   bar: {
-    backgroundColor: "#8b5cf6", // primary-500
+    backgroundColor: '#8b5cf6', // primary-500
     borderRadius: 9999,
   },
 });

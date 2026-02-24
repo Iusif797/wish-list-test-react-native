@@ -1,43 +1,44 @@
-import React from "react";
-import { View, StyleSheet, Text, SafeAreaView } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "@/navigation/AppNavigator";
-import { PremiumButton } from "@/components/PremiumButton";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { FaceIDAuthButton } from "@/components/FaceIDAuthButton";
-import { LogIn, UserPlus } from "lucide-react-native";
-import Animated, { FadeInUp, FadeIn } from "react-native-reanimated";
+import React from 'react';
+import { View, StyleSheet, Text, SafeAreaView } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@/navigation/AppNavigator';
+import { PremiumButton } from '@/components/PremiumButton';
+import { GoogleAuthButton } from '@/components/GoogleAuthButton';
+import { FaceIDAuthButton } from '@/components/FaceIDAuthButton';
+import { LogIn, UserPlus } from 'lucide-react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
-type Props = NativeStackScreenProps<RootStackParamList, "Landing">;
+type Props = NativeStackScreenProps<RootStackParamList, 'Landing'>;
 
 export default function LandingScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <View style={[StyleSheet.absoluteFill, styles.bgOverlay]} />
-      
+
       <SafeAreaView style={styles.safe}>
         <Animated.View entering={FadeInUp.duration(800).delay(200)} style={styles.content}>
           <View style={styles.logoContainer}>
             <Text style={styles.emojiLogo}>🎁</Text>
           </View>
-          
+
           <Text style={styles.title}>Список желаний</Text>
           <Text style={styles.description}>
-            Создавайте списки желаний, делитесь с друзьями, пусть они бронируют подарки или скидываются.
+            Создавайте списки желаний, делитесь с друзьями, пусть они бронируют подарки или
+            скидываются.
           </Text>
 
           <View style={styles.buttonContainer}>
             <FaceIDAuthButton style={styles.btn} variant="primary" />
             <PremiumButton
               title="Войти"
-              onPress={() => navigation.navigate("Login")}
+              onPress={() => navigation.navigate('Login')}
               icon={<LogIn size={18} color="#fff" />}
               style={styles.btn}
             />
             <PremiumButton
               title="Создать аккаунт"
               variant="secondary"
-              onPress={() => navigation.navigate("Register")}
+              onPress={() => navigation.navigate('Register')}
               icon={<UserPlus size={18} color="#f8fafc" />}
               style={styles.btn}
             />
@@ -56,17 +57,17 @@ export default function LandingScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#030014",
+    backgroundColor: '#030014',
   },
   bgOverlay: {
-    backgroundColor: "rgba(3, 0, 20, 0.7)",
+    backgroundColor: 'rgba(3, 0, 20, 0.7)',
   },
   safe: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
   },
   content: {
-    alignItems: "center",
+    alignItems: 'center',
     paddingHorizontal: 24,
   },
   logoContainer: {
@@ -80,22 +81,22 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    fontWeight: "800",
-    color: "#ffffff",
+    fontWeight: '800',
+    color: '#ffffff',
     marginBottom: 16,
-    textAlign: "center",
+    textAlign: 'center',
     letterSpacing: -0.5,
   },
   description: {
     fontSize: 16,
-    color: "#cbd5e1",
-    textAlign: "center",
+    color: '#cbd5e1',
+    textAlign: 'center',
     lineHeight: 24,
     marginBottom: 48,
     paddingHorizontal: 16,
   },
   buttonContainer: {
-    width: "100%",
+    width: '100%',
     maxWidth: 340,
     gap: 16,
   },
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
   footerText: {
     marginTop: 48,
     fontSize: 13,
-    color: "#64748b",
-    textAlign: "center",
-  }
+    color: '#64748b',
+    textAlign: 'center',
+  },
 });

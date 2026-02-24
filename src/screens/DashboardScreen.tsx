@@ -1,20 +1,29 @@
-import React, { useState, useCallback } from "react";
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, RefreshControl, SafeAreaView, Alert } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import { useAuth } from "@/lib/auth";
-import { api, getApiUrl } from "@/lib/api";
-import { PremiumButton } from "@/components/PremiumButton";
-import { EmptyState } from "@/components/EmptyState";
-import { GlassCard } from "@/components/GlassCard";
-import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ConfirmModal } from "@/components/ConfirmModal";
-import { useTheme } from "@/lib/theme";
-import useSWR from "swr";
-import { LogOut, Plus, Gift, Trash2, Moon, Sun } from "lucide-react-native";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import React, { useState, useCallback } from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+  SafeAreaView,
+  Alert,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { useAuth } from '@/lib/auth';
+import { api } from '@/lib/api';
+import { PremiumButton } from '@/components/PremiumButton';
+import { EmptyState } from '@/components/EmptyState';
+import { GlassCard } from '@/components/GlassCard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { ConfirmModal } from '@/components/ConfirmModal';
+import { useTheme } from '@/lib/theme';
+import useSWR from 'swr';
+import { LogOut, Plus, Gift, Trash2, Moon, Sun } from 'lucide-react-native';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 
-type Props = NativeStackScreenProps<RootStackParamList, "Dashboard">;
+type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
 
 interface Wishlist {
   id: string;
@@ -32,57 +41,66 @@ const SWR_OPTIONS = { revalidateOnFocus: false, dedupingInterval: 5000 };
 export default function DashboardScreen({ navigation }: Props) {
   const { user, logout } = useAuth();
   const { theme, toggle } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = theme === 'dark';
 
-  const { data: wishlists, mutate, isLoading } = useSWR<Wishlist[]>("/wishlists/my", fetcher, SWR_OPTIONS);
-  
+  const {
+    data: wishlists,
+    mutate,
+    isLoading,
+  } = useSWR<Wishlist[]>('/wishlists/my', fetcher, SWR_OPTIONS);
+
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleDelete = useCallback(async () => {
     if (!deletingId) return;
     try {
-      await api(`/wishlists/${deletingId}`, { method: "DELETE" });
+      await api(`/wishlists/${deletingId}`, { method: 'DELETE' });
       mutate();
     } catch (err: any) {
-      Alert.alert("Ошибка", err.message || "Не удалось удалить список");
+      Alert.alert('Ошибка', err.message || 'Не удалось удалить список');
     } finally {
       setDeletingId(null);
     }
   }, [deletingId, mutate]);
 
-  const renderItem = useCallback(({ item, index }: { item: Wishlist, index: number }) => (
-    <Animated.View entering={FadeInUp.delay(index * 100)}>
-      <TouchableOpacity onPress={() => navigation.navigate("WishlistDetail", { id: item.id })}>
-        <GlassCard style={styles.card}>
-          <View style={styles.cardContent}>
-            <View style={styles.cardIcon}>
-              <Text style={styles.cardEmoji}>🎁</Text>
+  const renderItem = useCallback(
+    ({ item, index }: { item: Wishlist; index: number }) => (
+      <Animated.View entering={FadeInUp.delay(index * 100)}>
+        <TouchableOpacity onPress={() => navigation.navigate('WishlistDetail', { id: item.id })}>
+          <GlassCard style={styles.card}>
+            <View style={styles.cardContent}>
+              <View style={styles.cardIcon}>
+                <Text style={styles.cardEmoji}>🎁</Text>
+              </View>
+              <View style={styles.cardInfo}>
+                <Text style={[styles.cardTitle, isDark ? styles.textDark : styles.textLight]}>
+                  {item.name}
+                </Text>
+                <Text style={styles.cardOccasion}>{item.occasion}</Text>
+              </View>
+              <TouchableOpacity
+                style={styles.deleteBtn}
+                onPress={(e) => {
+                  e.stopPropagation();
+                  setDeletingId(item.id);
+                }}
+              >
+                <Trash2 size={20} color="#ef4444" />
+              </TouchableOpacity>
             </View>
-            <View style={styles.cardInfo}>
-              <Text style={[styles.cardTitle, isDark ? styles.textDark : styles.textLight]}>{item.name}</Text>
-              <Text style={styles.cardOccasion}>{item.occasion}</Text>
-            </View>
-            <TouchableOpacity 
-              style={styles.deleteBtn} 
-              onPress={(e) => {
-                e.stopPropagation();
-                setDeletingId(item.id);
-              }}
-            >
-              <Trash2 size={20} color="#ef4444" />
-            </TouchableOpacity>
-          </View>
-        </GlassCard>
-      </TouchableOpacity>
-    </Animated.View>
-  ), [isDark, navigation]);
+          </GlassCard>
+        </TouchableOpacity>
+      </Animated.View>
+    ),
+    [isDark, navigation],
+  );
 
   return (
     <SafeAreaView style={[styles.container, isDark ? styles.bgDark : styles.bgLight]}>
       <View style={styles.header}>
         <View>
           <Text style={[styles.greeting, isDark ? styles.textDark : styles.textLight]}>
-            Привет, {user?.name || "Пользователь"} 👋
+            Привет, {user?.name || 'Пользователь'} 👋
           </Text>
           <Text style={styles.subtitle}>Мои списки желаний</Text>
         </View>
@@ -91,7 +109,7 @@ export default function DashboardScreen({ navigation }: Props) {
             {isDark ? <Sun size={24} color="#f8fafc" /> : <Moon size={24} color="#0f172a" />}
           </TouchableOpacity>
           <TouchableOpacity onPress={logout} style={styles.iconButton}>
-            <LogOut size={24} color={isDark ? "#f8fafc" : "#0f172a"} />
+            <LogOut size={24} color={isDark ? '#f8fafc' : '#0f172a'} />
           </TouchableOpacity>
         </View>
       </View>
@@ -104,10 +122,10 @@ export default function DashboardScreen({ navigation }: Props) {
         removeClippedSubviews={true}
         initialNumToRender={10}
         refreshControl={
-          <RefreshControl 
-            refreshing={isLoading} 
-            onRefresh={mutate} 
-            tintColor={isDark ? "#f8fafc" : "#0f172a"}
+          <RefreshControl
+            refreshing={isLoading}
+            onRefresh={mutate}
+            tintColor={isDark ? '#f8fafc' : '#0f172a'}
           />
         }
         ListEmptyComponent={
@@ -118,7 +136,7 @@ export default function DashboardScreen({ navigation }: Props) {
               icon={<Gift size={32} color="#8b5cf6" />}
               message="У вас пока нет списков желаний"
               actionLabel="Создать список"
-              onAction={() => navigation.navigate("NewWishlist")}
+              onAction={() => navigation.navigate('NewWishlist')}
             />
           )
         }
@@ -128,7 +146,7 @@ export default function DashboardScreen({ navigation }: Props) {
         <PremiumButton
           title="Новый список"
           icon={<Plus size={20} color="#fff" />}
-          onPress={() => navigation.navigate("NewWishlist")}
+          onPress={() => navigation.navigate('NewWishlist')}
         />
       </View>
 
@@ -150,42 +168,42 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bgDark: {
-    backgroundColor: "#030014",
+    backgroundColor: '#030014',
   },
   bgLight: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: '#f8fafc',
   },
   textLight: {
-    color: "#0f172a",
+    color: '#0f172a',
   },
   textDark: {
-    color: "#f8fafc",
+    color: '#f8fafc',
   },
   header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: 24,
   },
   greeting: {
     fontSize: 24,
-    fontWeight: "800",
+    fontWeight: '800',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 15,
-    color: "#64748b",
+    color: '#64748b',
   },
   headerActions: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: 16,
   },
   iconButton: {
     padding: 8,
     borderRadius: 16,
-    backgroundColor: "rgba(139, 92, 246, 0.1)",
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
   },
   listContent: {
     paddingHorizontal: 24,
@@ -196,16 +214,16 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   cardContent: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   cardIcon: {
     width: 48,
     height: 48,
     borderRadius: 16,
-    backgroundColor: "rgba(139, 92, 246, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 16,
   },
   cardEmoji: {
@@ -216,12 +234,12 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     fontSize: 18,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   cardOccasion: {
     fontSize: 14,
-    color: "#64748b",
+    color: '#64748b',
   },
   deleteBtn: {
     padding: 8,
@@ -231,5 +249,5 @@ const styles = StyleSheet.create({
     bottom: 32,
     left: 24,
     right: 24,
-  }
+  },
 });

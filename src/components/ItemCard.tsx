@@ -1,10 +1,10 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, Linking } from "react-native";
-import { GlassCard } from "./GlassCard";
-import { PremiumButton } from "./PremiumButton";
-import { ProgressBar } from "./ProgressBar";
-import { useTheme } from "../lib/theme";
-import { ExternalLink, Edit2, Trash2, CheckCircle2 } from "lucide-react-native";
+import React from 'react';
+import { View, Text, StyleSheet, Image, Linking } from 'react-native';
+import { GlassCard } from './GlassCard';
+import { PremiumButton } from './PremiumButton';
+import { ProgressBar } from './ProgressBar';
+import { useTheme } from '../lib/theme';
+import { ExternalLink, Edit2, Trash2, CheckCircle2 } from 'lucide-react-native';
 
 export interface ItemType {
   id: string;
@@ -42,7 +42,7 @@ export const ItemCard = React.memo(function ItemCard({
   loadingId,
 }: ItemCardProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = theme === 'dark';
 
   const hasTarget = item.target_amount != null && item.target_amount > 0;
   const target = item.target_amount ?? item.price;
@@ -65,12 +65,10 @@ export const ItemCard = React.memo(function ItemCard({
           )}
         </View>
         <View style={styles.info}>
-          <Text style={[styles.name, isDark ? styles.textDark : styles.textLight]}>{item.name}</Text>
-          <Text 
-            style={styles.url} 
-            numberOfLines={1} 
-            onPress={handleOpenUrl}
-          >
+          <Text style={[styles.name, isDark ? styles.textDark : styles.textLight]}>
+            {item.name}
+          </Text>
+          <Text style={styles.url} numberOfLines={1} onPress={handleOpenUrl}>
             {item.url} <ExternalLink size={12} color="#8b5cf6" />
           </Text>
           <Text style={[styles.price, isDark ? styles.textDark : styles.textLight]}>
@@ -86,7 +84,7 @@ export const ItemCard = React.memo(function ItemCard({
               <Text style={styles.badgeReservedText}>Забронировано</Text>
             </View>
           )}
-          
+
           {!isOwner && item.reserved_by_me && (
             <View style={styles.badgeMyReserve}>
               <CheckCircle2 size={12} color="#8b5cf6" />
@@ -106,7 +104,9 @@ export const ItemCard = React.memo(function ItemCard({
       {hasTarget && (
         <View style={styles.progressContainer}>
           <ProgressBar progress={item.progress} />
-          <Text style={[styles.progressText, isDark ? styles.textMutedDark : styles.textMutedLight]}>
+          <Text
+            style={[styles.progressText, isDark ? styles.textMutedDark : styles.textMutedLight]}
+          >
             {item.total_contributed} / {target} ₽
           </Text>
         </View>
@@ -119,7 +119,7 @@ export const ItemCard = React.memo(function ItemCard({
             variant="secondary"
             onPress={onEdit}
             style={styles.actionButton}
-            icon={<Edit2 size={16} color={isDark ? "#cbd5e1" : "#475569"} />}
+            icon={<Edit2 size={16} color={isDark ? '#cbd5e1' : '#475569'} />}
           />
           <PremiumButton
             title="Удалить"
@@ -153,7 +153,7 @@ export const ItemCard = React.memo(function ItemCard({
               title="Скинуться"
               onPress={onContribute}
               loading={isLoading}
-              style={[styles.actionButton, item.reserved_by_me ? {marginTop: 12} : null]}
+              style={[styles.actionButton, item.reserved_by_me ? { marginTop: 12 } : null]}
             />
           )}
         </View>
@@ -168,22 +168,22 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   header: {
-    flexDirection: "row",
-    alignItems: "flex-start",
+    flexDirection: 'row',
+    alignItems: 'flex-start',
   },
   imageContainer: {
     width: 80,
     height: 80,
     borderRadius: 16,
-    backgroundColor: "rgba(139, 92, 246, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginRight: 16,
-    overflow: "hidden",
+    overflow: 'hidden',
   },
   image: {
-    width: "100%",
-    height: "100%",
+    width: '100%',
+    height: '100%',
   },
   emojiIcon: {
     fontSize: 32,
@@ -194,39 +194,39 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 16,
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: 4,
   },
   url: {
     fontSize: 13,
-    color: "#8b5cf6",
+    color: '#8b5cf6',
     marginBottom: 8,
   },
   price: {
     fontSize: 15,
-    fontWeight: "600",
+    fontWeight: '600',
   },
   targetText: {
-    fontWeight: "400",
-    color: "#94a3b8",
+    fontWeight: '400',
+    color: '#94a3b8',
   },
   textLight: {
-    color: "#0f172a",
+    color: '#0f172a',
   },
   textDark: {
-    color: "#f8fafc",
+    color: '#f8fafc',
   },
   textMutedLight: {
-    color: "#64748b",
+    color: '#64748b',
   },
   textMutedDark: {
-    color: "#94a3b8",
+    color: '#94a3b8',
   },
   badgeReserved: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(6, 182, 212, 0.15)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(6, 182, 212, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -235,14 +235,14 @@ const styles = StyleSheet.create({
   },
   badgeReservedText: {
     fontSize: 12,
-    fontWeight: "700",
-    color: "#06b6d4",
+    fontWeight: '700',
+    color: '#06b6d4',
   },
   badgeMyReserve: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "rgba(168, 85, 247, 0.15)",
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(168, 85, 247, 0.15)',
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 12,
@@ -251,8 +251,8 @@ const styles = StyleSheet.create({
   },
   badgeMyReserveText: {
     fontSize: 12,
-    fontWeight: "700",
-    color: "#a855f7",
+    fontWeight: '700',
+    color: '#a855f7',
   },
   progressContainer: {
     marginTop: 16,
@@ -260,11 +260,11 @@ const styles = StyleSheet.create({
   progressText: {
     fontSize: 12,
     marginTop: 6,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   actionRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 12,
     marginTop: 20,
   },

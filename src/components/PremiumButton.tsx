@@ -1,15 +1,37 @@
-import React, { useEffect } from "react";
-import { TouchableOpacity, Text, StyleSheet, TouchableOpacityProps, View, Platform } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withSpring, withRepeat, withTiming, Easing } from "react-native-reanimated";
+import React, { useEffect } from 'react';
+import {
+  TouchableOpacity,
+  Text,
+  StyleSheet,
+  TouchableOpacityProps,
+  View,
+  Platform,
+} from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withRepeat,
+  withTiming,
+  Easing,
+} from 'react-native-reanimated';
 
 interface PremiumButtonProps extends TouchableOpacityProps {
   title: string;
-  variant?: "primary" | "secondary" | "danger";
+  variant?: 'primary' | 'secondary' | 'danger';
   loading?: boolean;
   icon?: React.ReactNode;
 }
 
-export function PremiumButton({ title, variant = "primary", loading, icon, style, disabled, ...props }: PremiumButtonProps) {
+export function PremiumButton({
+  title,
+  variant = 'primary',
+  loading,
+  icon,
+  style,
+  disabled,
+  ...props
+}: PremiumButtonProps) {
   const scale = useSharedValue(1);
   const glowOpacity = useSharedValue(0.5);
 
@@ -22,11 +44,11 @@ export function PremiumButton({ title, variant = "primary", loading, icon, style
   };
 
   useEffect(() => {
-    if (variant === "primary") {
+    if (variant === 'primary') {
       glowOpacity.value = withRepeat(
         withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.ease) }),
         -1,
-        true
+        true,
       );
     }
   }, [variant]);
@@ -39,8 +61,8 @@ export function PremiumButton({ title, variant = "primary", loading, icon, style
     opacity: glowOpacity.value,
   }));
 
-  const isPrimary = variant === "primary";
-  const isDanger = variant === "danger";
+  const isPrimary = variant === 'primary';
+  const isDanger = variant === 'danger';
   const isDisabled = disabled || loading;
 
   return (
@@ -53,7 +75,7 @@ export function PremiumButton({ title, variant = "primary", loading, icon, style
         style={[
           styles.container,
           isPrimary && styles.primaryContainer,
-          variant === "secondary" && styles.secondaryContainer,
+          variant === 'secondary' && styles.secondaryContainer,
           isDanger && styles.dangerContainer,
           isDisabled && styles.disabledContainer,
         ]}
@@ -66,11 +88,17 @@ export function PremiumButton({ title, variant = "primary", loading, icon, style
         )}
         <View style={styles.content}>
           {loading ? (
-            <Text style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}>Загрузка...</Text>
+            <Text style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}>
+              Загрузка...
+            </Text>
           ) : (
             <>
               {icon && <View style={styles.iconContainer}>{icon}</View>}
-              <Text style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}>{title}</Text>
+              <Text
+                style={[styles.text, isPrimary || isDanger ? styles.textLight : styles.textDark]}
+              >
+                {title}
+              </Text>
             </>
           )}
         </View>
@@ -82,18 +110,18 @@ export function PremiumButton({ title, variant = "primary", loading, icon, style
 const styles = StyleSheet.create({
   container: {
     borderRadius: 20,
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingVertical: 16,
     paddingHorizontal: 24,
     position: 'relative',
   },
   primaryContainer: {
-    backgroundColor: "#8b5cf6",
+    backgroundColor: '#8b5cf6',
     ...Platform.select({
       ios: {
-        shadowColor: "#8b5cf6",
+        shadowColor: '#8b5cf6',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.5,
         shadowRadius: 16,
@@ -104,20 +132,20 @@ const styles = StyleSheet.create({
     }),
   },
   secondaryContainer: {
-    backgroundColor: "rgba(139, 92, 246, 0.05)",
+    backgroundColor: 'rgba(139, 92, 246, 0.05)',
     borderWidth: 1.5,
-    borderColor: "rgba(139, 92, 246, 0.4)",
+    borderColor: 'rgba(139, 92, 246, 0.4)',
   },
   dangerContainer: {
-    backgroundColor: "#ef4444",
+    backgroundColor: '#ef4444',
   },
   disabledContainer: {
     opacity: 0.4,
   },
   content: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     zIndex: 2,
   },
   iconContainer: {
@@ -125,14 +153,14 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: '600',
     letterSpacing: 0.2,
   },
   textLight: {
-    color: "#ffffff",
+    color: '#ffffff',
   },
   textDark: {
-    color: "#f8fafc",
+    color: '#f8fafc',
   },
   glowContainer: {
     zIndex: 1,
@@ -147,5 +175,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#c084fc',
     opacity: 0.5,
-  }
+  },
 });

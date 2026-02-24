@@ -1,6 +1,14 @@
-import React, { useEffect } from "react";
-import { View, StyleSheet } from "react-native";
-import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withTiming, Easing, interpolate, Extrapolation } from "react-native-reanimated";
+import React, { useEffect } from 'react';
+import { View, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withRepeat,
+  withTiming,
+  Easing,
+  interpolate,
+  Extrapolation,
+} from 'react-native-reanimated';
 
 export function LoadingSpinner() {
   const rotation = useSharedValue(0);
@@ -9,13 +17,13 @@ export function LoadingSpinner() {
     rotation.value = withRepeat(
       withTiming(360, { duration: 1000, easing: Easing.linear }),
       -1,
-      false
+      false,
     );
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
-      transform: [{ rotate: `${rotation.value}deg` }]
+      transform: [{ rotate: `${rotation.value}deg` }],
     };
   });
 
@@ -31,8 +39,8 @@ export function LoadingSpinner() {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: 24,
   },
   spinner: {
@@ -46,7 +54,10 @@ const styles = StyleSheet.create({
   },
   spinnerTop: {
     position: 'absolute',
-    top: -3, right: -3, bottom: -3, left: -3,
+    top: -3,
+    right: -3,
+    bottom: -3,
+    left: -3,
     borderRadius: 20,
     borderWidth: 3,
     borderColor: 'transparent',
@@ -56,5 +67,5 @@ const styles = StyleSheet.create({
   },
   spinnerRight: {
     position: 'absolute',
-  }
+  },
 });

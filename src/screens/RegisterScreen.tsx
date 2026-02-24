@@ -1,43 +1,52 @@
-import React, { useState } from "react";
-import { View, StyleSheet, Text, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity, SafeAreaView } from "react-native";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../navigation/AppNavigator";
-import { useAuth } from "@/lib/auth";
-import { InputField } from "@/components/InputField";
-import { PremiumButton } from "@/components/PremiumButton";
-import { GoogleAuthButton } from "@/components/GoogleAuthButton";
-import { GlassCard } from "@/components/GlassCard";
-import { useTheme } from "@/lib/theme";
-import Animated, { FadeInDown } from "react-native-reanimated";
-import { ChevronLeft } from "lucide-react-native";
+import React, { useState } from 'react';
+import {
+  View,
+  StyleSheet,
+  Text,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+} from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
+import { useAuth } from '@/lib/auth';
+import { InputField } from '@/components/InputField';
+import { PremiumButton } from '@/components/PremiumButton';
+import { GoogleAuthButton } from '@/components/GoogleAuthButton';
+import { GlassCard } from '@/components/GlassCard';
+import { useTheme } from '@/lib/theme';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { ChevronLeft } from 'lucide-react-native';
 
-type Props = NativeStackScreenProps<RootStackParamList, "Register">;
+type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 export default function RegisterScreen({ navigation }: Props) {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const isDark = theme === 'dark';
 
   async function handleRegister() {
     if (!email || !password) {
-      setError("Заполните почту и пароль");
+      setError('Заполните почту и пароль');
       return;
     }
     if (password.length < 6) {
-      setError("Пароль должен быть не менее 6 символов");
+      setError('Пароль должен быть не менее 6 символов');
       return;
     }
-    setError("");
+    setError('');
     setLoading(true);
     try {
       await register(email, password, name || undefined);
     } catch (err: any) {
-      setError(err instanceof Error ? err.message : "Ошибка регистрации");
+      setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
       setLoading(false);
     }
@@ -45,15 +54,19 @@ export default function RegisterScreen({ navigation }: Props) {
 
   return (
     <SafeAreaView style={[styles.container, isDark ? styles.bgDark : styles.bgLight]}>
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.keyboardView}
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-          
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-            <ChevronLeft size={24} color={isDark ? "#f8fafc" : "#0f172a"} />
-            <Text style={[styles.backText, isDark ? styles.textDark : styles.textLight]}>Назад</Text>
+            <ChevronLeft size={24} color={isDark ? '#f8fafc' : '#0f172a'} />
+            <Text style={[styles.backText, isDark ? styles.textDark : styles.textLight]}>
+              Назад
+            </Text>
           </TouchableOpacity>
 
           <Animated.View entering={FadeInDown.duration(600).springify()}>
@@ -61,7 +74,9 @@ export default function RegisterScreen({ navigation }: Props) {
               <View style={styles.logoContainer}>
                 <Text style={styles.emojiLogo}>✨</Text>
               </View>
-              <Text style={[styles.title, isDark ? styles.textDark : styles.textLight]}>Регистрация</Text>
+              <Text style={[styles.title, isDark ? styles.textDark : styles.textLight]}>
+                Регистрация
+              </Text>
               <Text style={styles.subtitle}>Создайте аккаунт для списков желаний</Text>
             </View>
 
@@ -114,7 +129,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
               <View style={styles.footer}>
                 <Text style={styles.subtitle}>Уже есть аккаунт? </Text>
-                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
                   <Text style={styles.link}>Войти</Text>
                 </TouchableOpacity>
               </View>
@@ -131,34 +146,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bgDark: {
-    backgroundColor: "#030014",
+    backgroundColor: '#030014',
   },
   bgLight: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: '#f8fafc',
   },
   keyboardView: {
     flex: 1,
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     padding: 24,
   },
   backButton: {
     position: 'absolute',
     top: 16,
     left: 16,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     zIndex: 10,
   },
   backText: {
     fontSize: 16,
-    fontWeight: "500",
+    fontWeight: '500',
     marginLeft: 4,
   },
   header: {
-    alignItems: "center",
+    alignItems: 'center',
     marginBottom: 32,
     marginTop: 40,
   },
@@ -166,9 +181,9 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 20,
-    backgroundColor: "rgba(139, 92, 246, 0.1)",
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginBottom: 16,
   },
   emojiLogo: {
@@ -176,43 +191,43 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 28,
-    fontWeight: "800",
+    fontWeight: '800',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: 15,
-    color: "#64748b",
+    color: '#64748b',
   },
   textLight: {
-    color: "#0f172a",
+    color: '#0f172a',
   },
   textDark: {
-    color: "#f8fafc",
+    color: '#f8fafc',
   },
   card: {
     padding: 24,
   },
   errorBox: {
-    backgroundColor: "rgba(239, 68, 68, 0.1)",
-    borderColor: "rgba(239, 68, 68, 0.3)",
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
     borderWidth: 1,
     padding: 12,
     borderRadius: 12,
     marginBottom: 16,
   },
   errorText: {
-    color: "#ef4444",
+    color: '#ef4444',
     fontSize: 14,
-    textAlign: "center",
+    textAlign: 'center',
   },
   submitBtn: {
     marginTop: 8,
     marginBottom: 24,
   },
   divider: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 24,
   },
   line: {
@@ -220,25 +235,25 @@ const styles = StyleSheet.create({
     height: 1,
   },
   lineLight: {
-    backgroundColor: "#e2e8f0",
+    backgroundColor: '#e2e8f0',
   },
   lineDark: {
-    backgroundColor: "rgba(139, 92, 246, 0.3)",
+    backgroundColor: 'rgba(139, 92, 246, 0.3)',
   },
   dividerText: {
     marginHorizontal: 12,
     fontSize: 12,
-    fontWeight: "600",
-    color: "#94a3b8",
+    fontWeight: '600',
+    color: '#94a3b8',
   },
   footer: {
-    flexDirection: "row",
-    justifyContent: "center",
+    flexDirection: 'row',
+    justifyContent: 'center',
     marginTop: 24,
   },
   link: {
-    color: "#8b5cf6",
-    fontWeight: "600",
+    color: '#8b5cf6',
+    fontWeight: '600',
     fontSize: 15,
-  }
+  },
 });

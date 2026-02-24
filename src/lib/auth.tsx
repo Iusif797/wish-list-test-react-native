@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { api } from "./api";
-import { saveBiometricCredentials, clearBiometricCredentials } from "./biometric";
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { api } from './api';
+import { saveBiometricCredentials, clearBiometricCredentials } from './biometric';
 
 export interface User {
   id: string;
@@ -29,17 +29,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUser = useCallback(async () => {
     try {
-      const t = await AsyncStorage.getItem("token");
+      const t = await AsyncStorage.getItem('token');
       if (!t) {
         setLoading(false);
         return;
       }
       setToken(t);
       setLoading(true);
-      const u = await api<User>("/auth/me");
+      const u = await api<User>('/auth/me');
       setUser(u);
     } catch {
-      await AsyncStorage.removeItem("token");
+      await AsyncStorage.removeItem('token');
       setToken(null);
       setUser(null);
     } finally {
@@ -52,59 +52,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [loadUser]);
 
   const persist = useCallback(async (accessToken: string) => {
-    await AsyncStorage.setItem("token", accessToken);
+    await AsyncStorage.setItem('token', accessToken);
     await saveBiometricCredentials(accessToken);
   }, []);
 
-  const login = useCallback(async (email: string, password: string) => {
-    const res = await api<{ access_token: string; user: User }>("/auth/login", {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-    });
-    await persist(res.access_token);
-    setToken(res.access_token);
-    setUser(res.user);
-  }, [persist]);
+  const login = useCallback(
+    async (email: string, password: string) => {
+      const res = await api<{ access_token: string; user: User }>('/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      await persist(res.access_token);
+      setToken(res.access_token);
+      setUser(res.user);
+    },
+    [persist],
+  );
 
-  const register = useCallback(async (email: string, password: string, name?: string) => {
-    const res = await api<{ access_token: string; user: User }>("/auth/register", {
-      method: "POST",
-      body: JSON.stringify({ email, password, name }),
-    });
-    await persist(res.access_token);
-    setToken(res.access_token);
-    setUser(res.user);
-  }, [persist]);
+  const register = useCallback(
+    async (email: string, password: string, name?: string) => {
+      const res = await api<{ access_token: string; user: User }>('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify({ email, password, name }),
+      });
+      await persist(res.access_token);
+      setToken(res.access_token);
+      setUser(res.user);
+    },
+    [persist],
+  );
 
-  const loginWithOAuth = useCallback(async (accessToken: string, u: User) => {
-    await persist(accessToken);
-    setToken(accessToken);
-    setUser(u);
-  }, [persist]);
+  const loginWithOAuth = useCallback(
+    async (accessToken: string, u: User) => {
+      await persist(accessToken);
+      setToken(accessToken);
+      setUser(u);
+    },
+    [persist],
+  );
 
   const loginWithBiometrics = useCallback(async () => {
-    const { authenticateWithBiometrics, getBiometricToken } = await import("./biometric");
+    const { authenticateWithBiometrics, getBiometricToken } = await import('./biometric');
     const ok = await authenticateWithBiometrics();
     if (!ok) return;
     const t = await getBiometricToken();
     if (!t) {
-      throw new Error("Нет сохранённых учётных данных");
+      throw new Error('Нет сохранённых учётных данных');
     }
-    await AsyncStorage.setItem("token", t);
-    const u = await api<User>("/auth/me");
+    await AsyncStorage.setItem('token', t);
+    const u = await api<User>('/auth/me');
     setToken(t);
     setUser(u);
   }, []);
 
   const logout = useCallback(async () => {
-    await AsyncStorage.removeItem("token");
+    await AsyncStorage.removeItem('token');
     await clearBiometricCredentials();
     setToken(null);
     setUser(null);
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, register, loginWithOAuth, loginWithBiometrics, logout }}>
+    <AuthContext.Provider
+      value={{ user, token, loading, login, register, loginWithOAuth, loginWithBiometrics, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -112,6 +123,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
   return ctx;
 }
