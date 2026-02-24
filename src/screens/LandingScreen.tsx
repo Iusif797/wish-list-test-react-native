@@ -5,6 +5,8 @@ import { RootStackParamList } from '@/navigation/AppNavigator';
 import { PremiumButton } from '@/components/PremiumButton';
 import { GoogleAuthButton } from '@/components/GoogleAuthButton';
 import { FaceIDAuthButton } from '@/components/FaceIDAuthButton';
+import { FontSize } from '@/lib/typography';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { LogIn, UserPlus } from 'lucide-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   description: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     color: '#cbd5e1',
     textAlign: 'center',
     lineHeight: 24,
@@ -105,7 +107,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     marginTop: 48,
-    fontSize: 13,
+    fontSize: FontSize.caption,
     color: '#64748b',
     textAlign: 'center',
   },

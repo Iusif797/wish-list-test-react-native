@@ -15,6 +15,8 @@ import { InputField } from '../components/InputField';
 import { PremiumButton } from '../components/PremiumButton';
 import { GlassCard } from '../components/GlassCard';
 import { useTheme } from '../lib/theme';
+import { FontSize } from '../lib/typography';
+import { hapticSuccess, hapticError } from '../lib/haptics';
 import { api } from '../lib/api';
 import { ChevronLeft } from 'lucide-react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -35,11 +37,13 @@ export default function NewWishlistScreen({ navigation }: Props) {
     const trimmedOccasion = occasion.trim();
 
     if (!trimmedName || !trimmedOccasion) {
+      hapticError();
       setError('Пожалуйста, заполните все поля');
       return;
     }
 
     if (trimmedName.length > 50) {
+      hapticError();
       setError('Название не должно превышать 50 символов');
       return;
     }
@@ -48,6 +52,7 @@ export default function NewWishlistScreen({ navigation }: Props) {
     try {
       const { data: currentWishlists } = await api<any>('/wishlists/my');
       if (currentWishlists?.some((w: any) => w.name.toLowerCase() === trimmedName.toLowerCase())) {
+        hapticError();
         setError('Список с таким названием уже существует');
         return;
       }
@@ -62,8 +67,10 @@ export default function NewWishlistScreen({ navigation }: Props) {
         method: 'POST',
         body: JSON.stringify({ name: trimmedName, occasion: trimmedOccasion }),
       });
+      hapticSuccess();
       navigation.replace('WishlistDetail', { id: wishlist.id });
     } catch (err: any) {
+      hapticError();
       setError(err instanceof Error ? err.message : 'Ошибка создания списка');
       setLoading(false);
     }
@@ -159,7 +166,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backText: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '500',
     marginLeft: 4,
   },
@@ -180,13 +187,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   title: {
-    fontSize: 28,
+    fontSize: FontSize.header,
     fontWeight: '800',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: FontSize.secondary,
     color: '#64748b',
     textAlign: 'center',
     paddingHorizontal: 16,
@@ -210,7 +217,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ef4444',
-    fontSize: 14,
+    fontSize: FontSize.secondary,
     textAlign: 'center',
   },
   submitBtn: {

@@ -56,7 +56,7 @@ export const ItemCard = React.memo(function ItemCard({
   };
 
   return (
-    <GlassCard style={styles.card}>
+    <GlassCard style={[styles.card, item.reserved && styles.cardReserved]}>
       <View style={styles.header}>
         <View style={styles.imageContainer}>
           {item.image_url ? (
@@ -66,7 +66,13 @@ export const ItemCard = React.memo(function ItemCard({
           )}
         </View>
         <View style={styles.info}>
-          <Text style={[styles.name, isDark ? styles.textDark : styles.textLight]}>
+          <Text
+            style={[
+              styles.name,
+              isDark ? styles.textDark : styles.textLight,
+              item.reserved && styles.nameReserved,
+            ]}
+          >
             {item.name}
           </Text>
           <Text style={styles.url} numberOfLines={1} onPress={handleOpenUrl}>
@@ -167,6 +173,14 @@ const styles = StyleSheet.create({
   card: {
     padding: 20,
     marginBottom: 16,
+  },
+  cardReserved: {
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+    opacity: 0.85,
+  },
+  nameReserved: {
+    textDecorationLine: 'line-through',
+    opacity: 0.6,
   },
   header: {
     flexDirection: 'row',

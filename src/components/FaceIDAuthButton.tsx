@@ -13,6 +13,7 @@ import {
   hasStoredBiometricCredentials,
   getBiometricLabel,
 } from '../lib/biometric';
+import { FontSize } from '../lib/typography';
 import { ScanFace } from 'lucide-react-native';
 
 interface FaceIDAuthButtonProps {
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   text: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '600',
   },
   textPrimary: {

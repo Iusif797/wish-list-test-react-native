@@ -22,9 +22,11 @@ import { ItemCard, ItemType } from '@/components/ItemCard';
 import { InputField } from '@/components/InputField';
 import { GlassCard } from '@/components/GlassCard';
 import { useTheme } from '@/lib/theme';
+import { FontSize } from '@/lib/typography';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import { useAuth } from '@/lib/auth';
 import useSWR from 'swr';
-import { Gift, X } from 'lucide-react-native';
+import { X } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'PublicWishlist'>;
 
@@ -77,8 +79,10 @@ export default function PublicWishlistScreen({ route, navigation }: Props) {
     setLoadingItemId(item.id);
     try {
       await performAction(`/items/${item.id}/reserve`, 'POST');
+      hapticSuccess();
       mutate();
     } catch (err: any) {
+      hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось забронировать');
     } finally {
       setLoadingItemId(null);
@@ -89,8 +93,10 @@ export default function PublicWishlistScreen({ route, navigation }: Props) {
     setLoadingItemId(item.id);
     try {
       await performAction(`/items/${item.id}/reserve`, 'DELETE');
+      hapticSuccess();
       mutate();
     } catch (err: any) {
+      hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось отменить бронь');
     } finally {
       setLoadingItemId(null);
@@ -101,17 +107,20 @@ export default function PublicWishlistScreen({ route, navigation }: Props) {
     if (!contributeItem) return;
     const amount = parseFloat(contributeAmount);
     if (isNaN(amount) || amount <= 0) {
+      hapticError();
       Alert.alert('Ошибка', 'Введите корректную сумму');
       return;
     }
     setContributing(true);
     try {
       await performAction(`/items/${contributeItem.id}/contribute`, 'POST', { amount });
+      hapticSuccess();
       mutate();
       setContributeItem(null);
       setContributeAmount('');
       Alert.alert('Спасибо!', 'Ваш взнос успешно добавлен');
     } catch (err: any) {
+      hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось сделать взнос');
     } finally {
       setContributing(false);
@@ -130,8 +139,9 @@ export default function PublicWishlistScreen({ route, navigation }: Props) {
     return (
       <SafeAreaView style={[styles.container, isDark ? styles.bgDark : styles.bgLight]}>
         <EmptyState
-          icon={<Gift size={32} color="#8b5cf6" />}
-          message="Список желаний не найден или удален"
+          emoji="🔍"
+          title="Список не найден"
+          subtitle="Этот список желаний был удалён или не существует"
         />
       </SafeAreaView>
     );
@@ -165,8 +175,9 @@ export default function PublicWishlistScreen({ route, navigation }: Props) {
         ListEmptyComponent={
           !wishlist?.items?.length ? (
             <EmptyState
-              icon={<Gift size={32} color="#8b5cf6" />}
-              message="В этом списке пока нет подарков"
+              emoji="🎁"
+              title="Список пуст"
+              subtitle="Владелец ещё не добавил подарки в этот список"
             />
           ) : null
         }
@@ -258,12 +269,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: {
-    fontSize: 22,
+    fontSize: FontSize.header,
     fontWeight: '700',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: FontSize.secondary,
   },
   listContent: {
     padding: 24,
@@ -290,7 +301,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 20,
+    fontSize: FontSize.title,
     fontWeight: '700',
   },
   modalItemInfo: {
@@ -301,7 +312,7 @@ const styles = StyleSheet.create({
   },
   modalItemName: {
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: FontSize.body,
     marginBottom: 4,
   },
   modalSubmit: {

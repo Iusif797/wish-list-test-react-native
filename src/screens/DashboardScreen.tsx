@@ -19,8 +19,10 @@ import { GlassCard } from '@/components/GlassCard';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useTheme } from '@/lib/theme';
+import { FontSize } from '@/lib/typography';
+import { hapticSuccess, hapticError, hapticWarning } from '@/lib/haptics';
 import useSWR from 'swr';
-import { LogOut, Plus, Gift, Trash2, Moon, Sun } from 'lucide-react-native';
+import { LogOut, Plus, Trash2, Moon, Sun } from 'lucide-react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Dashboard'>;
@@ -55,8 +57,10 @@ export default function DashboardScreen({ navigation }: Props) {
     if (!deletingId) return;
     try {
       await api(`/wishlists/${deletingId}`, { method: 'DELETE' });
+      hapticSuccess();
       mutate();
     } catch (err: any) {
+      hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось удалить список');
     } finally {
       setDeletingId(null);
@@ -82,6 +86,7 @@ export default function DashboardScreen({ navigation }: Props) {
                 style={styles.deleteBtn}
                 onPress={(e) => {
                   e.stopPropagation();
+                  hapticWarning();
                   setDeletingId(item.id);
                 }}
               >
@@ -133,8 +138,9 @@ export default function DashboardScreen({ navigation }: Props) {
             <LoadingSpinner />
           ) : (
             <EmptyState
-              icon={<Gift size={32} color="#8b5cf6" />}
-              message="У вас пока нет списков желаний"
+              emoji="✨"
+              title="Пока пусто"
+              subtitle="Создайте свой первый список желаний — соберите идеи подарков для близких или для себя"
               actionLabel="Создать список"
               onAction={() => navigation.navigate('NewWishlist')}
             />
@@ -188,12 +194,12 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   greeting: {
-    fontSize: 24,
+    fontSize: FontSize.header,
     fontWeight: '800',
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: FontSize.secondary,
     color: '#64748b',
   },
   headerActions: {
@@ -227,18 +233,18 @@ const styles = StyleSheet.create({
     marginRight: 16,
   },
   cardEmoji: {
-    fontSize: 24,
+    fontSize: FontSize.header,
   },
   cardInfo: {
     flex: 1,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: FontSize.title,
     fontWeight: '700',
     marginBottom: 4,
   },
   cardOccasion: {
-    fontSize: 14,
+    fontSize: FontSize.secondary,
     color: '#64748b',
   },
   deleteBtn: {

@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   StyleSheet,
   Text,
-  FlatList,
   TouchableOpacity,
   SafeAreaView,
   Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import DraggableFlatList, {
+  RenderItemParams,
+  ScaleDecorator,
+} from 'react-native-draggable-flatlist';
 import { api } from '@/lib/api';
 import { useWishlistWebSocket } from '@/lib/websocket';
 import { PremiumButton } from '@/components/PremiumButton';
 import { EmptyState } from '@/components/EmptyState';
+import { ProgressBar } from '@/components/ProgressBar';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { ItemCard, ItemType } from '@/components/ItemCard';
+import { SwipeableItemCard } from '@/components/SwipeableItemCard';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { useTheme } from '@/lib/theme';
+import { FontSize } from '@/lib/typography';
+import { hapticSuccess, hapticError, hapticWarning, hapticMedium } from '@/lib/haptics';
 import useSWR from 'swr';
 import * as Clipboard from 'expo-clipboard';
-import { ChevronLeft, Plus, Copy, Gift } from 'lucide-react-native';
+import { ChevronLeft, Plus, Copy } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'WishlistDetail'>;
 
@@ -45,34 +52,138 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
   });
 
   const [deletingItemId, setDeletingItemId] = useState<string | null>(null);
+  const [localItems, setLocalItems] = useState<ItemType[] | null>(null);
+
+  const items: ItemType[] = useMemo(() => localItems ?? wishlist?.items ?? [], [localItems, wishlist?.items]);
+
+  const stats = useMemo(() => {
+    const total = items.length;
+    const reserved = items.filter((i) => i.reserved).length;
+    const progress = total > 0 ? reserved / total : 0;
+    return { total, reserved, progress };
+  }, [items]);
 
   const handleDeleteItem = async () => {
     if (!deletingItemId) return;
     try {
       await api(`/wishlists/${id}/items/${deletingItemId}`, { method: 'DELETE' });
+      hapticSuccess();
       mutate();
+      setLocalItems(null);
     } catch (err: any) {
+      hapticError();
       Alert.alert('Ошибка', err.message || 'Не удалось удалить предмет');
     } finally {
       setDeletingItemId(null);
     }
   };
 
+  const handleToggleReserved = useCallback(
+    async (item: ItemType) => {
+      try {
+        if (item.reserved) {
+          await api(`/wishlists/${id}/items/${item.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ reserved: false }),
+          });
+        } else {
+          await api(`/wishlists/${id}/items/${item.id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ reserved: true }),
+          });
+        }
+        hapticSuccess();
+        mutate();
+        setLocalItems(null);
+      } catch {
+        hapticError();
+      }
+    },
+    [id, mutate],
+  );
+
   const shareLink = `https://wish-list-dun.vercel.app/w/${wishlist?.slug}`;
 
   const copyLink = async () => {
     await Clipboard.setStringAsync(shareLink);
+    hapticSuccess();
     Alert.alert('Готово', 'Ссылка скопирована в буфер обмена');
   };
 
-  const renderItem = ({ item }: { item: ItemType }) => (
-    <ItemCard
-      item={item}
-      isOwner={true}
-      onEdit={() => navigation.navigate('EditItem', { id, itemId: item.id })}
-      onDelete={() => setDeletingItemId(item.id)}
-    />
+  const handleDragEnd = useCallback(
+    ({ data }: { data: ItemType[] }) => {
+      hapticMedium();
+      setLocalItems(data);
+      const itemIds = data.map((item) => item.id);
+      api(`/wishlists/${id}/reorder`, {
+        method: 'PATCH',
+        body: JSON.stringify({ item_ids: itemIds }),
+      }).catch(() => {
+        setLocalItems(null);
+      });
+    },
+    [id],
   );
+
+  const renderItem = useCallback(
+    ({ item, drag, isActive }: RenderItemParams<ItemType>) => (
+      <ScaleDecorator>
+        <TouchableOpacity
+          activeOpacity={1}
+          onLongPress={() => {
+            hapticMedium();
+            drag();
+          }}
+          disabled={isActive}
+          style={isActive ? styles.draggingItem : undefined}
+        >
+          <SwipeableItemCard
+            onSwipeLeft={() => {
+              hapticWarning();
+              setDeletingItemId(item.id);
+            }}
+            onSwipeRight={() => handleToggleReserved(item)}
+            isReserved={item.reserved}
+          >
+            <ItemCard
+              item={item}
+              isOwner={true}
+              onEdit={() => navigation.navigate('EditItem', { id, itemId: item.id })}
+              onDelete={() => {
+                hapticWarning();
+                setDeletingItemId(item.id);
+              }}
+            />
+          </SwipeableItemCard>
+        </TouchableOpacity>
+      </ScaleDecorator>
+    ),
+    [id, navigation, handleToggleReserved],
+  );
+
+  const renderEmptyState = useCallback(() => {
+    return (
+      <EmptyState
+        emoji="🎁"
+        title="Список пуст"
+        subtitle="Добавьте свой первый подарок — начните собирать идеи, которые порадуют вас или ваших близких"
+        actionLabel="Добавить первый подарок"
+        onAction={() => navigation.navigate('AddItem', { id })}
+      />
+    );
+  }, [id, navigation]);
+
+  const renderAllReservedBanner = () => {
+    if (stats.total === 0 || stats.reserved < stats.total) return null;
+    return (
+      <View style={[styles.allReservedBanner, isDark ? styles.bannerDark : styles.bannerLight]}>
+        <Text style={styles.bannerEmoji}>🎉</Text>
+        <Text style={[styles.bannerText, isDark ? styles.textDark : styles.textLight]}>
+          Все подарки забронированы!
+        </Text>
+      </View>
+    );
+  };
 
   if (isLoading && !wishlist) {
     return (
@@ -94,42 +205,54 @@ export default function WishlistDetailScreen({ route, navigation }: Props) {
         <View style={{ width: 24 }} />
       </View>
 
-      <FlatList
-        data={wishlist?.items || []}
+      <DraggableFlatList
+        data={items}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        onDragEnd={handleDragEnd}
+        containerStyle={styles.listFlex}
         contentContainerStyle={styles.listContent}
-        removeClippedSubviews={true}
-        initialNumToRender={8}
-        maxToRenderPerBatch={8}
         ListHeaderComponent={
           wishlist ? (
-            <View style={styles.shareSection}>
-              <Text style={styles.shareLabel}>Публичная ссылка на список:</Text>
-              <View style={[styles.shareBox, isDark ? styles.shareBoxDark : styles.shareBoxLight]}>
-                <Text
-                  style={[styles.shareText, isDark ? styles.textDark : styles.textLight]}
-                  numberOfLines={1}
-                >
-                  {shareLink}
-                </Text>
-                <TouchableOpacity style={styles.copyBtn} onPress={copyLink}>
-                  <Copy size={20} color="#8b5cf6" />
-                </TouchableOpacity>
+            <View>
+              <View style={styles.shareSection}>
+                <Text style={styles.shareLabel}>Публичная ссылка на список:</Text>
+                <View style={[styles.shareBox, isDark ? styles.shareBoxDark : styles.shareBoxLight]}>
+                  <Text
+                    style={[styles.shareText, isDark ? styles.textDark : styles.textLight]}
+                    numberOfLines={1}
+                  >
+                    {shareLink}
+                  </Text>
+                  <TouchableOpacity style={styles.copyBtn} onPress={copyLink}>
+                    <Copy size={20} color="#8b5cf6" />
+                  </TouchableOpacity>
+                </View>
               </View>
+
+              {stats.total > 0 && (
+                <View style={[styles.statsCard, isDark ? styles.statsCardDark : styles.statsCardLight]}>
+                  <View style={styles.statsRow}>
+                    <Text style={[styles.statsLabel, isDark ? styles.textMutedDark : styles.textMutedLight]}>
+                      Забронировано
+                    </Text>
+                    <Text style={[styles.statsValue, isDark ? styles.textDark : styles.textLight]}>
+                      {stats.reserved} из {stats.total}
+                    </Text>
+                  </View>
+                  <ProgressBar progress={stats.progress} height={6} />
+                </View>
+              )}
+
+              {renderAllReservedBanner()}
+
+              {items.length > 1 && (
+                <Text style={styles.dragHint}>Удерживайте подарок, чтобы переместить · свайп для действий</Text>
+              )}
             </View>
           ) : null
         }
-        ListEmptyComponent={
-          !wishlist?.items?.length ? (
-            <EmptyState
-              icon={<Gift size={32} color="#8b5cf6" />}
-              message="В этом списке пока нет подарков"
-              actionLabel="Добавить первый подарок"
-              onAction={() => navigation.navigate('AddItem', { id })}
-            />
-          ) : null
-        }
+        ListEmptyComponent={!items.length ? renderEmptyState : null}
       />
 
       <View style={styles.fabContainer}>
@@ -182,17 +305,17 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: FontSize.title,
     fontWeight: '600',
     flex: 1,
     textAlign: 'center',
     marginHorizontal: 16,
   },
   shareSection: {
-    marginBottom: 24,
+    marginBottom: 16,
   },
   shareLabel: {
-    fontSize: 13,
+    fontSize: FontSize.caption,
     color: '#64748b',
     marginBottom: 8,
     fontWeight: '500',
@@ -216,15 +339,93 @@ const styles = StyleSheet.create({
   },
   shareText: {
     flex: 1,
-    fontSize: 14,
+    fontSize: FontSize.secondary,
   },
   copyBtn: {
     padding: 8,
     marginLeft: 8,
   },
+  listFlex: {
+    flex: 1,
+  },
   listContent: {
     padding: 24,
     paddingBottom: 100,
+  },
+  draggingItem: {
+    opacity: 0.95,
+    shadowColor: '#8b5cf6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.4,
+    shadowRadius: 20,
+    elevation: 16,
+  },
+  statsCard: {
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+  },
+  statsCardLight: {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderColor: 'rgba(226, 232, 240, 0.8)',
+  },
+  statsCardDark: {
+    backgroundColor: 'rgba(10, 5, 40, 0.6)',
+    borderColor: 'rgba(139, 92, 246, 0.2)',
+  },
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  statsLabel: {
+    fontSize: FontSize.secondary,
+    fontWeight: '500',
+  },
+  statsValue: {
+    fontSize: FontSize.secondary,
+    fontWeight: '700',
+  },
+  textMutedLight: {
+    color: '#64748b',
+  },
+  textMutedDark: {
+    color: '#94a3b8',
+  },
+  allReservedBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 14,
+    borderRadius: 16,
+    marginBottom: 16,
+    gap: 8,
+    borderWidth: 1,
+  },
+  bannerLight: {
+    backgroundColor: 'rgba(16, 185, 129, 0.08)',
+    borderColor: 'rgba(16, 185, 129, 0.2)',
+  },
+  bannerDark: {
+    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+    borderColor: 'rgba(16, 185, 129, 0.25)',
+  },
+  bannerEmoji: {
+    fontSize: 20,
+  },
+  bannerText: {
+    fontSize: FontSize.secondary,
+    fontWeight: '700',
+  },
+  dragHint: {
+    fontSize: FontSize.caption,
+    color: '#64748b',
+    textAlign: 'center',
+    marginTop: 4,
+    marginBottom: 16,
+    fontStyle: 'italic',
   },
   fabContainer: {
     position: 'absolute',

@@ -16,8 +16,11 @@ import { InputField } from '@/components/InputField';
 import { PremiumButton } from '@/components/PremiumButton';
 import { GlassCard } from '@/components/GlassCard';
 import { useTheme } from '@/lib/theme';
+import { FontSize } from '@/lib/typography';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import { api } from '@/lib/api';
 import useSWR, { mutate } from 'swr';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { ChevronLeft, Search } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditItem'>;
@@ -80,16 +83,19 @@ export default function EditItemScreen({ route, navigation }: Props) {
     const trimmedUrl = url.trim();
 
     if (!trimmedName || !trimmedUrl || !price) {
+      hapticError();
       setError('Название, ссылка и цена обязательны');
       return;
     }
 
     if (trimmedName.length > 100) {
+      hapticError();
       setError('Название не должно превышать 100 символов');
       return;
     }
 
     if (wishlist?.items?.some((i: any) => i.id !== itemId && i.name.toLowerCase() === trimmedName.toLowerCase())) {
+      hapticError();
       setError('Подарок с таким названием уже существует в этом списке');
       return;
     }
@@ -107,10 +113,12 @@ export default function EditItemScreen({ route, navigation }: Props) {
           target_amount: targetAmount ? parseFloat(targetAmount) : null,
         }),
       });
+      hapticSuccess();
       mutate(`/wishlists/${id}`);
       mutate('/wishlists/my');
       navigation.goBack();
     } catch (err: any) {
+      hapticError();
       setError(err instanceof Error ? err.message : 'Ошибка сохранения');
       setLoadingSave(false);
     }
@@ -252,7 +260,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backText: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '500',
     marginLeft: 4,
   },
@@ -260,7 +268,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   title: {
-    fontSize: 28,
+    fontSize: FontSize.header,
     fontWeight: '800',
     letterSpacing: -0.5,
   },
@@ -283,7 +291,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ef4444',
-    fontSize: 14,
+    fontSize: FontSize.secondary,
     textAlign: 'center',
   },
   findBtn: {

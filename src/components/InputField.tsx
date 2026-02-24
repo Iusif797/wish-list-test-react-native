@@ -1,6 +1,7 @@
 import React from 'react';
 import { TextInput, TextInputProps, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../lib/theme';
+import { FontSize } from '../lib/typography';
 
 interface InputFieldProps extends TextInputProps {
   label: string;
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   label: {
-    fontSize: 14,
+    fontSize: FontSize.secondary,
     fontWeight: '500',
     marginBottom: 8,
   },
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 16,
     borderWidth: 1,
-    fontSize: 15,
+    fontSize: FontSize.secondary,
   },
   inputLight: {
     backgroundColor: '#ffffff',
@@ -68,7 +69,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ef4444',
-    fontSize: 13,
+    fontSize: FontSize.caption,
     marginTop: 6,
   },
 });

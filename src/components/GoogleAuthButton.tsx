@@ -12,6 +12,7 @@ import * as WebBrowser from 'expo-web-browser';
 import Constants from 'expo-constants';
 import { useAuth } from '../lib/auth';
 import { api, getApiUrl } from '../lib/api';
+import { FontSize } from '../lib/typography';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#1e293b',
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '600',
   },
 });

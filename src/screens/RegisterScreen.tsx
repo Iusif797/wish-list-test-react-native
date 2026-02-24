@@ -17,6 +17,8 @@ import { PremiumButton } from '@/components/PremiumButton';
 import { GoogleAuthButton } from '@/components/GoogleAuthButton';
 import { GlassCard } from '@/components/GlassCard';
 import { useTheme } from '@/lib/theme';
+import { FontSize } from '@/lib/typography';
+import { hapticSuccess, hapticError } from '@/lib/haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { ChevronLeft } from 'lucide-react-native';
 
@@ -34,10 +36,12 @@ export default function RegisterScreen({ navigation }: Props) {
 
   async function handleRegister() {
     if (!email || !password) {
+      hapticError();
       setError('Заполните почту и пароль');
       return;
     }
     if (password.length < 6) {
+      hapticError();
       setError('Пароль должен быть не менее 6 символов');
       return;
     }
@@ -45,7 +49,9 @@ export default function RegisterScreen({ navigation }: Props) {
     setLoading(true);
     try {
       await register(email, password, name || undefined);
+      hapticSuccess();
     } catch (err: any) {
+      hapticError();
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
     } finally {
       setLoading(false);
@@ -168,7 +174,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   backText: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '500',
     marginLeft: 4,
   },
@@ -190,13 +196,13 @@ const styles = StyleSheet.create({
     fontSize: 32,
   },
   title: {
-    fontSize: 28,
+    fontSize: FontSize.header,
     fontWeight: '800',
     marginBottom: 8,
     letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 15,
+    fontSize: FontSize.secondary,
     color: '#64748b',
   },
   textLight: {
@@ -218,7 +224,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: '#ef4444',
-    fontSize: 14,
+    fontSize: FontSize.secondary,
     textAlign: 'center',
   },
   submitBtn: {
@@ -242,7 +248,7 @@ const styles = StyleSheet.create({
   },
   dividerText: {
     marginHorizontal: 12,
-    fontSize: 12,
+    fontSize: FontSize.caption,
     fontWeight: '600',
     color: '#94a3b8',
   },
@@ -254,6 +260,6 @@ const styles = StyleSheet.create({
   link: {
     color: '#8b5cf6',
     fontWeight: '600',
-    fontSize: 15,
+    fontSize: FontSize.secondary,
   },
 });

@@ -15,6 +15,7 @@ import Animated, {
   withTiming,
   Easing,
 } from 'react-native-reanimated';
+import { FontSize } from '../lib/typography';
 
 interface PremiumButtonProps extends TouchableOpacityProps {
   title: string;
@@ -152,7 +153,7 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   text: {
-    fontSize: 16,
+    fontSize: FontSize.body,
     fontWeight: '600',
     letterSpacing: 0.2,
   },

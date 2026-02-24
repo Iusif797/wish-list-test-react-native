@@ -2,6 +2,7 @@ import React from 'react';
 import { Modal, View, Text, StyleSheet, TouchableWithoutFeedback } from 'react-native';
 import { PremiumButton } from './PremiumButton';
 import { useTheme } from '../lib/theme';
+import { FontSize } from '../lib/typography';
 
 interface ConfirmModalProps {
   visible: boolean;
@@ -85,14 +86,14 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(51, 65, 85, 0.6)',
   },
   title: {
-    fontSize: 20,
+    fontSize: FontSize.title,
     fontWeight: '700',
     marginBottom: 12,
   },
   message: {
-    fontSize: 15,
+    fontSize: FontSize.secondary,
     marginBottom: 24,
-    lineHeight: 22,
+    lineHeight: 20,
   },
   textLight: {
     color: '#0f172a', // slate-900
